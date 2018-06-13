@@ -1,0 +1,604 @@
+To override a method in the subclass, the overriding method (i.e. the one in the subclass) MUST HAVE:
+1. same name
+2. same return type in case of primitives
+(a subclass is allowed for classes, this is also known as covariant return types).
+3. same type and order of parameters
+4. it may throw only those exceptions that are declared in the throws clause of the superclass's method
+or exceptions that are subclasses of the declared exceptions. It may also choose NOT to throw any exception.
+The names of the parameter types do not matter. For example, void methodX(int i) is same as void methodX(int k)
+--------------------
+Keep in mind that static methods are never overridden, they may be hidden by a static method of a subclass with the same signature.
+--------------------
+While accessing a method or variable, the compiler will only allow you to access a method
+or variable that is visible through the class of the reference.
+--------------------
+1. You cannot provide a method body in an interface method unless you mark it as default (or static).
+2. You cannot use super keyword in an interface's method to invoke a method defined in its super interface.
+--------------------
+When you use System.out.println(exception), a stack trace is not printed. Just the name of the exception class and the message is printed.
+When you use exception.printStackTrace(), a complete chain of the names of the methods called,
+along with the line numbers, is printed. It contains the names of the methods in the chain of method
+calls that led to the place where the exception was created going back up to the point where the thread,
+ in which the exception was created, was started.
+ --------------------
+A break without a label breaks the current loop (i.e. no iterations any more) and a break with a label
+tries to pass the control to the given label.
+'Tries to' means that if the break is in a try block and the try block has a finally
+clause associated with it then it will be executed.
+
+
+---------------------Working with Java API - Time and Date----------------------
+It uses the calendar system defined in ISO-8601 as the default calendar.
+This calendar is based on the Gregorian calendar system and is used globally as the defacto
+standard for representing date and time. The core classes in the Date-Time API have names such
+as LocalDateTime, ZonedDateTime, and OffsetDateTime. All of these use the ISO calendar system.
+If you want to use an alternative calendar system, such as Hijrah or Thai Buddhist,
+the java.time.chrono package allows you to use one of the predefined calendar systems. Or you can create your own.
+-------------------------
+Java 8 introduces a new package java.time to deal with dates. The old classes such as java.util.Date are not recommended anymore.
+
+Briefly:
+java.time Package: This is the base package of new Java Date Time API. All the commonly used classes such as LocalDate, LocalTime, LocalDateTime, Instant, Period, Duration are part of this package. All of these classes are immutable and thread safe.
+java.time.format Package: This package contains classes used for formatting and parsing date time objects such as java.time.format.DateTimeFormatter.
+(The following two are not important for the exam.)
+java.time.zone Package: This package contains classes for supporting different time zones and their rules.
+java.time.chrono Package: This package defines generic APIs for non ISO calendar systems. We can extend AbstractChronology class to create our own calendar system.
+java.time.temporal Package: This package contains temporal objects and we can use it for find out specific date or time related to date/time object. For example, we can use these to find out the first or last day of the month. You can identify these methods easily because they always have format “withXXX”.
+--------------------------
+Here are some points that you should keep in mind about the new Date/Time classes introduced in Java 8 -
+
+1. They are in package java.time and they have no relation at all to the old java.util.Date and java.sql.Date.
+
+2. java.time.temporal.TemporalAccessor is the base interface that is implemented by LocalDate, LocalTime, and LocalDateTime concrete classes. This interface defines read-only access to temporal objects, such as a date, time, offset or some combination of these, which are represented by the interface TemporalField.
+
+3. LocalDate, LocalTime, and LocalDateTime classes do not have any parent/child relationship among themselves. As their names imply, LocalDate contains just the date information and no time information, LocalTime contains only time and no date, while LocalDateTime contains date as well as time. None of them contains zone information. For that, you can use ZonedDateTime.
+These classes are immutable and have no public constructors. You create objects of these classes using their static factory methods such as of(...) and from(TemporalAccessor ).  For example,
+LocalDate ld = LocalDate.of(2015, Month.JANUARY, 1); or LocalDate ld = LocalDate.from(anotherDate); or LocalDateTime ldt = LocalDateTime.of(2015, Month.JANUARY, 1, 21, 10); //9.10 PM
+Since you can't modify them once created, if you want to create new object with some changes to the original, you can use the instance method named with(...). For example,
+LocalDate sunday = ld.with(java.time.temporal.TemporalAdjusters.next(DayOfWeek.SUNDAY));
+
+4. Formatting of date objects into String and parsing of Strings into date objects is done by java.time.format.DateTimeFormatter class. This class provides public static references to readymade DateTimeFormatter objects through the fields named ISO_DATE, ISO_LOCAL_DATE, ISO_LOCAL_DATE_TIME, etc.  For example -
+LocalDate d1 = LocalDate.parse("2015-01-01", DateTimeFormatter.ISO_LOCAL_DATE);
+
+The parameter type and return type of the methods of DateTimeFormatter class is the base interface TemporalAccessor instead of concrete classes such as LocalDate or LocalDateTime. So you shouldn't directly cast the returned values to concrete classes like this -
+   LocalDate d2 = (LocalDate) DateTimeFormatter.ISO_LOCAL_DATE.parse("2015-01-01"); //will compile but may or may not throw a ClassCastException at runtime.
+You should do like this -
+   LocalDate d2 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse("2015-01-01"));
+5. Besides dates, java.time package also provides Period and Duration classes. Period is used for quantity or amount of time in terms of years, months and days, while Duration is used for quantity or amount of time in terms of hour, minute, and seconds.
+Durations and periods differ in their treatment of daylight savings time when added to ZonedDateTime. A Duration will add an exact number of seconds, thus a duration of one day is always exactly 24 hours. By contrast, a Period will add a conceptual day, trying to maintain the local time.
+For example, consider adding a period of one day and a duration of one day to 18:00 on the evening before a daylight savings gap. The Period will add the conceptual day and result in a ZonedDateTime at 18:00 the following day. By contrast, the Duration will add exactly 24 hours, resulting in a ZonedDateTime at 19:00 the following day (assuming a one hour DST gap).
+
+
+
+---------------Working with Java API - String, StringBuilder------------------
+There are 2 points to remember:
+1. replace(char oldChar, char newChar) method returns the same String object if both the parameters are same,
+i.e. if there is no change. Thus, "String" == "String".replace('g', 'g') will return true.
+2. replace(CharSequence oldSeq,  CharSequence newSeq) method returns a new String object even if there is no change after replacement.
+Working with Java API - String, StringBuilder-Thus, "String" == "String".replace("g", "g") will return false.
+
+
+---------------------Java Basics---------------------
+You cannot apply any modifier except final to a local variable. i.e. you cannot make them transient, volatile, static, public, and private.
+But you can apply access modifiers (public private and protected) and final, transient, volatile, static to instance variables.
+You cannot apply native and synchronized to any kind of variable.
+-------------------
+An instance member belongs to a single instance, not the class as a whole. An instance member is a
+member variable or a member method that belongs to a specific object instance. All non-static members are instance members.
+------------------
+static methods can't be abstract.
+------------------
+Since the question says, "...an instance of the class is not needed...", the method has to be static.
+Also, as the question does not say that other packages should not have access to the method so public or protected is also correct.
+------------------
+When the program is run, the JVM looks for a method named main()
+which takes an array of Strings as input and returns nothing (i.e. the return type is void).
+But in this case, it doesn't find such a method ( the given main() method is returning long!) so it gives out the following message:
+
+Error: Main method must return a value of type void in class TestClass, please
+define the main method as:
+   public static void main(String[] args)
+
+
+----------------------Java Basics - OO Concepts----------------
+Java allows a class to implement multiple interfaces.
+An interface is a "type" and does not contain any state. This implies that Java supports multiple type inheritance.
+A class contains state and extending a class means inheriting the state.
+Since Java does not allow a class to extend from multiple classes,
+it means that Java does not support multiple state inheritance.
+
+This is an important concept and is explained in more detail here: https://docs.oracle.com/javase/tutorial/java/IandI/multipleinheritance.html
+
+
+
+---------------------Using Operators and Decision Constructs-----------------
+It can be used on floating points operands also. For example, 5.5 % 3 = 2.5
+-------------------
+Here are the rules for a switch statement:
+1. Only String, byte, char, short, int, (and their wrapper classes Byte, Character, Short, and Integer),
+and enums can be used as types of a switch variable. (String is allowed only since Java 7).
+2. The case constants must be assignable to the switch variable. For example,
+if your switch variable is of class String, your case labels must use Strings as well.
+3. The switch variable must be big enough to hold all the case constants.
+For example, if the switch variable is of type char, then none of the case constants
+can be greater than 65535 because a char's range is from 0 to 65535.
+4.  All case labels should be COMPILE TIME CONSTANTS.
+5. No two of the case constant expressions associated with a switch statement may have the same value.
+6. At most one default label may be associated with the same switch statement.
+-----------------------------
+This will not compile because a short VARIABLE can NEVER be assigned to a char without explicit casting.
+A short CONSTANT can be assigned to a char only if the value fits into a char.
+
+short s = 1; byte b = s; => this will also not compile because although value is small enough to be held by a byte
+but the Right Hand Side i.e. s is a variable and not a constant.
+final short s = 1; byte b = s; => This is fine because s is a constant and the value fits into a byte.
+final short s = 200; byte b = s; => This is invalid because although s is a constant but the value does not fit into a byte.
+
+Implicit narrowing occurs only for byte, char, short, and int. Remember that it does not occur for long, float, or double.
+So, this will not compile: int i = 129L;
+----------------------
+You should remember the following rules for a switch statement:
+1. Only String, byte, char, short, int, and enum values can be used as types of a switch variable.
+(String is allowed since Java 7.) Wrapper classes Byte, Character, Short, and Integer are allowed as well.
+2. The case constants must be assignable to the switch variable.
+For example, if your switch variable is of class String, your case labels must use Strings as well.
+3. The switch variable must be big enough to hold all the case constants.
+For example, if the switch variable is of type char, then none of the case constants can be greater than 65535 because a char's range is from 0 to 65535. Similarly, the following will not compile because 300 cannot be assigned to 'by', which can only hold values from -128 to 127.
+byte by = 10;
+switch(by){
+    case 200 :  //some code;
+    case 300 :  //some code;
+}
+4.  All case labels should be COMPILE TIME CONSTANTS.
+5. No two of the case constant expressions associated with a switch statement may have the same value.
+6. At most one default label may be associated with the same switch statement.
+--------------------
+The expression (a = b) does not compare the variables a and b, but rather assigns the value of b to the variable a.
+The result of the expression is the value being assigned. Since a and b are boolean variables,
+the value returned by the expression is also boolean. This allows the expressions to be used as the condition for an if-statement.
+if-clause and the else-clause can have empty statements. Empty statement ( i.e. just ; ) is a valid statement.
+But this is illegal :
+if (true) else;
+because the if part doesn't contain any valid statement. ( A statement cannot start with an else!)
+So, the following is valid.
+if(true) if(false);
+because if(false); is a valid statement.
+--------------------
+For left shifts there is no difference between shifting signed and
+unsigned values so there is only one leftshift '<<' in java.
+--------------------
+1. A char value can ALWAYS be assigned to an int variable, since the int type is wider than the char type. So line 2 is valid.
+2. Line 4 will not compile because it is trying to assign an int to a char.
+Although the value of i can be held by the char but since  'i' is not a constant but a variable, implicit narrowing will not occur.
+Here is the rule given in JLS regarding assigment of constant values to primitive variables without explicit cast:
+A narrowing primitive conversion may be used if all of the following conditions are satisfied:
+
+1. The expression is a compile time constant expression of type byte, char, short, or int.
+2. The type of the variable is byte, short, or char.
+3. The value of the expression (which is known at compile time, because it is a constant expression) is representable in the type of the variable.
+
+Note that implict narrowing conversion (i.e. conversion without an explicit cast) does not apply to float, long, or double.
+For example, char ch = 30L; will fail to compile although 30 is small enough to fit into a char.
+-------------------
+The Java language, like C and C++ and many languages before them,
+arbitrarily decree that an else clause belongs to the innermost
+-------------------
+
+
+
+
+
+---------------------Order of operator precedence-------------------
+Post-unary operators expression++, expression--
+Pre-unary operators ++expression, --expression
+Other unary operators  +, -, !
++, -, !
+*, /, %
++, -
+<<, >>, >>>
+<, >, <=, >=, instanceof
+==, !=
+&, ^, |
+&&, ||
+boolean expression ? expression1 : expression2
+=, +=, -=, *=, /=, %=, &=, ^=, !=, <<=, >>=, >>>=
+
+
+
+--------------Working with Java Data Types!!!!!!!!!!!
+Think of it as transferring contents of one bucket into another. You can always transfer the contents of a smaller bucket to a bigger one. But the opposite is not always possible. You can transfer the contents of the bigger bucket into the smaller bucket only if the actual content in the bigger bucket can fit into the smaller one. Otherwise, it will spill.
+
+It is the same with integral types as well. byte is smaller than short or int. So you can assign a byte to an int (or an int to a float, or a float to a double) without any cast. But for the reverse you need to assure the compiler that the actual contents in my int will be smaller than a byte so let me assign this int to a byte. This is achieved by the cast.
+int i = 10;
+byte b = 20;
+b = i;//will not compile because byte is smaller than int
+b = (byte) i; //OK
+
+
+Further, if you have a final variable and its value fits into a smaller type, then you can assign it without a cast because compiler already knows its value and realizes that it can fit into the smaller type. This is called implicit narrowing and is allowed between byte, int, char, and, short but not for long, float, and double.
+
+
+final int k = 10;
+b = k; //Okay because k is final and 10 fits into a byte
+
+final float f = 10.0;//will not compile because 10.0 is a double even though the value 10.0 fits into a float
+------------------------------------
+Actually it prints -46. This is because the information was lost during the conversion
+from type int to type float as values of type float are not precise to nine significant digits.
+Note: You are not required to know the number of significant digits that can be stored by a float for the exam.
+However, it is good to know about loss of precision while using float and double. (Test10)
+-----------------------------------
+Observe that rounding is a standard mathematical procedure where the number that lies exactly
+between two numbers always rounds up to the higher one. So .5 rounds to 1 and -.5 rounds to 0.
+-----------------------------------
+A final variable must be initialized when an instance is constructed,
+or else the code will not compile.
+This can be done either in an instance initializer or in EVERY constructor.
+The keyword static is used to signify that a block is static initializer.
+If nothing is there before starting curly brace then it is an instance initializer.
+-----------------------------------
+This is invalid because the floating point suffices f, F, d, and D are used only when using decimal system and not while using binary.
+However, since f is a valid digit in hexadecimal system,
+a hex number may end with an f although it will not be interpreted as float but as the digit f.
+Thus, float x = 0x10_000f; and float x = 10_000f;
+are valid because they are written in hex and decimal respectively but float x = 0b10_000f;
+is invalid because is written in binary.
+
+Note that a floating point number cannot be written in Octal. Therefore, float x = 010_000f;
+is valid but it is not octal even though it starts with a 0. It is interpreted in decimal.
+
+
+
+-----------------Working with Inheritance--------------------------
+Abstract methods are meant to be overridden in the subclass.
+Abstract methods describe a behavior but do not implement it. So the subclasses have to override it to actually implement the behavior.
+A subclass may chose not to override it, in which case, the subclass will have to be abstract too.
+-------------------------
+private method cannot be abstract. A private method is not inherited so how can a subclass implement it?
+return type should always be on the immediate left of method name.
+native method cannot be abstract.
+------------------------
+Note that 'i' is not public or protected. So it will be inherited only if both the classes are in same package.
+-----------------------
+Here are a few good words from the Java Language Specification:
+Members of a class that are declared private are not inherited by subclasses of that class.
+Only members of a class that are declared protected or public are inherited by subclasses declared in a package other than the one in which the class is declared.
+Constructors and static initializers are not members and therefore are not inherited.
+-----------------------
+A constructor of a class is meant to initialize the instance of that class.
+It is an opportunity for the programmer to make the instance ready for use by others.
+Therefore, when you create an object of a class using the new keyword, the JVM invokes that class's constructor as per the supplied arguments.
+It is so important that if you don't have any thing that you want to do to the instance and decide to not write a constructor,
+the compiler automatically creates one constructor for that class.
+Remember that an instance of a class is also an instance of its super class.
+Therefore, the fields of its super class need to be initialized as well.
+Now, observe that a sub class is always aware of its super class and so it can make use of the fields of its super class (depending on accessibility) but a super class has no knowledge of its subclasses. Therefore, the fields defined by the super class must be initialized before the fields of the subclass can be initialized because a subclass constructor may utilize the fields of the super class. This means that a super class constructor must execute before a sub class constructor. This logic applies to all the super classes in the chain right up to java.lang.Object class,
+since Object class is the root class of all objects. Obviously then, the Object class's constructor must be the first one to execute.
+The compiler ensures this order of execution of constructors by checking that each constructor of a class first calls either a constructor of its super class or another constructor of the same class. If a constructor of a class doesn't explicitly do that (i.e. it neither calls super class's constructor nor calls another one of its own constructors as the first thing), the compiler automatically inserts a call to the default no-args constructor of the super class. This is same as writing super(); as the first statement in the constructor of the class.
+Now, what if the super class doesn't have a no-args constructor? Obviously, the automatic call to super();
+inserted by the compiler will fail and therefore, the sub class code will fail to compile.
+----------------------
+getClass is a public instance method in Object class. That means it is polymorphic.
+In other words, this method is bound at run time and so it returns the name of the class of the actual object to which the reference points.
+Here, at run time, both - a and aa, point to an object of class AA. So both will print AA.
+----------------------
+super.methodName is a valid way to invoke a super class's method from anywhere within a subclass's method.
+But it works only for classes.
+To invoke an interface's default method, you need to use the name of that interface as well.
+Like this: Account.super.getId();
+
+A class (or an interface) can invoke a default method of an interface that
+is explicitly mentioned in the class's implements clause (or the interface's extends clause)
+by using the same syntax i.e. <InterfaceName>.super.<methodName>.
+
+However, this technique cannot be used to invoke a default method provided
+by an interface that is not directly implemented (or extended) by the caller.
+Here is an example:
+
+interface A {
+   default void hello() {
+   }
+}
+interface B extends A {
+   default void hello() {
+       super.hello();    //This is NOT valid.
+       A.super.hello();    //This is valid.
+   }
+}
+public class TestClass implements B {
+   public void hello() {
+      super.hello();//This is NOT valid.
+      A.super.hello(); //This is NOT valid because TestClass does not implement A directly.
+      B.super.hello(); //This is valid.
+   }
+}
+---------------------------
+Remember that variables and static methods are not overridden and so access to variables and static methods is determined at compile time
+based on the type of the variable (instead of type of the object referred to by the variable, as is the case with instance methods.)
+In the given code, if you declare b to be of type B i.e. B b = new B();
+, you can access b.i.
+
+
+
+
+---------------Lambda Expressions--------------------
+A functional interface is an interface that contains exactly one abstract method. It may contain zero or more default methods and/or static methods. Because a functional interface contains exactly one abstract method, you can omit the name of that method when you implement it using a lambda expression. For example, consider the following interface -
+interface Predicate<T> {
+    boolean test(T t);
+}
+
+The purpose of this interface is to provide a method that operates on an object of class T and return a boolean.
+
+You could have a method that takes an instance of class that implements this interface defined like this -
+public void printImportantData(ArrayList<Data> dataList, Predicate<Data> p){
+   for(Data d: dataList){
+      if(p.test(d)) System.out.println(d);
+   }
+}
+
+where Data class could be as simple as public class Data{ public int value; }
+
+Now, you can call the above method as follows:
+
+        printImportantData(al, (Data d)->{ return d.value>1; } );
+Notice the lack of method name here. This is possible because the interface has only one abstract method so the compiler can figure out the name. This can be shortened to:
+
+        printImportantData(al, (Data d)->d.value>1);
+Notice the lack of curly brackets, the return keyword, and the semicolon. This is possible because the method returns a boolean and the expression d.value>1 also returns a boolean. The compiler is therefore able to figure out that the value of this expression is to be returned from the method. This can be shortened even more to:
+
+        printImportantData(al, d->d.value>1);
+Notice that there is no declaration of d! The compiler can figure out all information it needs because the interface has only one abstract method and that method has only one parameter. So you don't need to write all those things in your code.
+
+
+Compare the above approach to the old style using an inner class that does the same thing -
+
+       printImportantData(al,  new Predicate<Data>(){
+                            public boolean test(Data d){
+                                 return d.value>1;
+                             }   }   );
+
+The Predicate interface described above can be used anywhere there is a need to "do something with an object and return a boolean" and is actually provided by the standard java library in java.util.function package. This package provides a few other useful functional interfaces.
+
+Predicate<T>    Represents a predicate (boolean-valued function) of one argument of type T.
+Consumer<T> Represents an operation that accepts a single input argument of type T and returns no result.
+Function<T,R> Represents a function that accepts one argument of type T and produces a result of type R
+Supplier<T> Represents a supplier of results of type T.
+
+For the exam, you only need to be aware of Predicate.
+
+Please see http://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html for learning Lambda expressions in Java.
+----------------------
+http://enthuware.com/index.php/home/115
+Syntactically, this lambda expression is correct.
+However, remember that a lambda expression does not create a new scope for variables.
+Therefore, you cannot reuse the variable names that have already been used to define new variables in your argument list .
+Here, observe that the variable d is already defined so your argument list cannot use d as a variable name.
+It would be like defining the same variable twice in the same scope.
+(parameter list) OR single_variable_without_type -> { regular lines of code } OR just_an_expression_without_semicolon
+----------------------
+
+
+
+
+--------------Constructors-------------------------
+The access type of a default constructor is same as the access type of the class.
+Thus, if a class is public, the default constructor will be public.
+--------------
+It is provided by the compiler if the class does not define any constructor.
+It is immaterial if the super class provides a constructor or not.
+
+
+-------------Using Loop Constructs---------------
+A break statement with no label attempts to transfer control to the innermost enclosing switch, while, do, or for statement;
+this statement, which is called the break target, then immediately completes normally.
+If no switch, while, do, or for statement encloses the break statement, a compile-time error occurs.
+
+A break statement with label Identifier attempts to transfer control to the enclosing labeled statement
+that has the same Identifier as its label; this statement, which is called the break target,
+then immediately completes normally. In this case, the break target need not be a while, do, for, or switch statement.
+
+A continue statement with no label attempts to transfer control to the innermost enclosing while, do,
+or for statement; this statement, which is called the continue target,
+then immediately ends the current iteration and begins a new one.
+If no while, do, or for statement encloses the continue statement, a compile-time error occurs.
+
+A continue statement with label Identifier attempts to transfer control to the enclosing labelled statement
+that has the same Identifier as its label; that statement, which is called the continue target,
+then immediately ends the current iteration and begins a new one. The continue target must be a
+while, do, or for statement or a compile-time error occurs.
+If no labelled statement with Identifier as its label contains the continue statement, a compile-time error occurs.
+--------------------
+while (false) { x=3; } is a compile-time error because the statement x=3; is not reachable;
+Similarly, for( int i = 0; false; i++) x = 3; is also a compile time error because x= 3 is unreachable.
+
+In if(false){ x=3; }, although the body of the condition is unreachable,
+this is not an error because the JLS explicitly defines this as an exception to the rule.
+It allows this construct to support optimizations through the conditional compilation. For example,
+
+if(DEBUG){ System.out.println("beginning task 1"); }
+Here, the DEBUG variable can be set to false in the code while generating the production version of the class file,
+which will allow the compiler to optimize the code by removing the whole if statement entirely from the class file.
+--------------------
+Here, the first part (i.e. the init part) and the second part (i.e. the expression/condition part) part of the for loop are empty. Both are valid. (When the expression/condition part is empty, it is interpreted as true.)
+
+The third part (i.e. the update part) of the for loop does not allow every kind of statement.
+It allows only the following statements here:
+Assignment, PreIncrementExpression, PreDecrementExpression, PostIncrementExpression,
+PostDecrementExpression, MethodInvocation, and ClassInstanceCreationExpression.
+Thus, Math.random()<0.5 is not valid here, and so this will not compile.
+
+
+--------------------Working with Methods-------------
+If the class declares a field with a certain name, then the declaration of that field is said to hide any and all accessible declarations of fields with the same name in superclasses, and superinterfaces of the class.
+For example,
+class Base{
+   int i=10;
+}
+class Sub extends Base{
+  int i=20; //This i hides Base's i.
+}
+...
+Sub s = new Sub();
+int k = s.i; //assigns 20 to k.
+
+k = ((Base)s).i;//assigns 10 to k. The cast is used to show the Base's i.
+
+Base b = new Sub();
+k = b.i;//assigns 10 to k because which field is accessed depends on the class of the variable and not on the class of the actual object.
+Same rule applies to static methods but the opposite is true for instance methods.
+------------------------
+A method is said to be overloaded when the other method's name is same and parameters
+( either the number or their order) are different.
+------------------------
+The reason is quite simple, the most specific method depending upon the argument is called.
+Here, null can be passed to all the 3 methods but FileNotFoundException class is the subclass of
+IOException which in turn is the subclass of Object. So, FileNotFoundException class is the most specific class.
+So, this method is called.
+Had there been two most specific methods, it would not even compile as the compiler will
+not be able to determine which method to call. For example:
+
+public class TestClass{
+   public void method(Object o){
+      System.out.println("Object Version");
+   }
+   public void method(String s){
+      System.out.println("String Version");
+   }
+   public void method(StringBuffer s){
+      System.out.println("StringBuffer Version");
+   }
+   public static void main(String args[]){
+      TestClass tc = new TestClass();
+      tc.method(null);
+   }
+}
+Here, null can be passed as both StringBuffer and String and none is more specific than the other. So, it will not compile.
+
+
+-----------------Creating and Using Arrays-------------
+The statement iA[i] = i = 30 ; will be processed as follows:
+iA[i] = i = 30; => iA[0] = i = 30 ;  =>  i = 30; iA[0] = i ; =>   iA[0] = 30 ;
+
+Here is what JLS says on this:
+1 Evaluate Left-Hand Operand First
+2 Evaluate Operands before Operation
+3 Evaluation Respects Parentheses and Precedence
+4 Argument Lists are Evaluated Left-to-Right
+
+For Arrays: First, the dimension expressions are evaluated, left-to-right.
+If any of the expression evaluations completes abruptly, the expressions to the right of it are not evaluated.
+
+
+---------------Working with Methods - Overloading-----------------
+To answer this type of questions, you need to know the following rules:
+1. The compiler always tries to choose the most specific method available with least number of modifications to the arguments.
+2. Java designers have decided that old code should work exactly as it used to work before boxing-unboxing functionality became available.
+3. Widening is preferred to boxing/unboxing (because of rule 2), which in turn, is preferred over var-args.
+
+Thus,
+1.
+probe(Integer) will be bound to probe(Integer) (exact match). If that is not available, it will be bound to probe(long),
+and then with probe(int...) in that order of preference.
+probe(long) is preferred over probe(int...) because unboxing an Integer gives an int and in pre 1.5 code probe(long)
+is compatible with an int (Rule 2).
+
+It is never bound to probe(Long ) because Integer and Long are different object types and there is no IS-A relation between them.
+(This holds true for any two wrapper classes).
+It could, however, be bound to probe(Object ) (if it existed), because Integer IS-A Object.
+
+2.
+probe(int) is bound to probe(long) (because of Rule 2) , then to probe(Integer )
+because boxing an int qives you an Integer, which matches exactly to probe(Integer), and then to probe(int...).
+
+It is never bound to probe(Long ) because int is not compatible with Long.
+
+We advise you to run this program and try out various combinations.
+The exam has questions on this pattern but they are not this tough. If you have a basic understanding, you should be ok.
+
+--------------Working with Java Data Types----------------
+You need to remember the following points about Boolean:
+
+1. Boolean class has two constructors - Boolean(String) and Boolean(boolean)
+The String constructor allocates a Boolean object representing the value true if the string argument is not null and is equal,
+ignoring case, to the string "true". Otherwise, allocate a Boolean object representing the value false. 
+Examples: new Boolean("True") produces a Boolean object that represents true. new Boolean("yes") produces a Boolean object that represents false.
+The boolean constructor is self explanatory.
+
+2. Boolean class has two static helper methods for creating booleans - parseBoolean and valueOf.
+Boolean.parseBoolean(String ) method returns a primitive boolean and not a Boolean object 
+(Note - Same is with the case with other parseXXX methods such as Integer.parseInt - they return primitives and not objects). 
+The boolean returned represents the value true if the string argument is not null and is equal, ignoring case, to the string "true".
+
+Boolean.valueOf(String ) and its overloaded Boolean.valueOf(boolean ) version, on the other hand, work similarly 
+but return a reference to either Boolean.TRUE or Boolean.FALSE wrapper objects. 
+Observe that they don't create a new Boolean object but just return the static constants TRUE or FALSE defined in Boolean class.
+
+3. When you use the equality operator ( == ) with booleans, if exactly one of the operands is a Boolean wrapper, 
+it is first unboxed into a boolean primitive and then the two are compared (JLS 15.21.2). 
+If both are Boolean wrappers, then their references are compared just like in the case of other objects. 
+Thus, new Boolean("true") == new Boolean("true") is false, but new Boolean("true") == Boolean.parseBoolean("true") is true.
+--------------------------
+Note: The following discussion about bit patterns and two's complement 
+is not required for the exam but is useful for building the basic understanding.
+
+It prints: -2147483648   -2147483648
+
+This happens because negative integers are stored in 2's complement form (complement the bits and add 1). 
+For example:
+
+Integer 1 in binary is  00000000 00000000 00000000 00000001  (32 bits)
+
+So -1 in binary would be (complement the bits for 1 and add 1) :
+
+Step 1 (complement the bits of 1): 11111111 11111111 11111111 11111110  
+Step 2 (add 1 to step 1): 11111111 11111111 11111111 11111111.
+
+Now, let's see what happens in this question:
+
+a = Integer.MIN_VALUE = 10000000 00000000 00000000 00000000
+
+To get -a, apply the above two steps:
+
+Step 1  (complement the bits): 01111111 11111111 11111111 11111111
+Step 2 (add 1) : 10000000 00000000 00000000 00000000
+
+So you got the exact same value that you started with!
+(Note that you can see the binary form of an integer using Integer.toBinaryString(i) method.)
+
+
+
+
+------------------Handling Exceptions------------------------
+Observe that all the exceptions given in the options other than Exception and NoClassDefFoundError are RuntimeExceptions. 
+These are usually thrown implicitly. A programmer should not throw these exceptions explicitly. java.lang.Exception 
+and its subclasses (except RuntimeException) should be used by the programmer to reflect known exceptional situations, 
+while RuntimeExceptions are used to reflect unforseen or unrecoverable exceptional situations.
+
+Note: There is no hard and fast rule that says RuntimeExceptions (such as the ones mentioned in this questions)  must not be thrown explicitly. 
+It is ok to throw these exceptions explicitly in certain situations. For example, framework/library classes such as Struts, Spring, and Hibernate, 
+and standard JDK classes throw these exceptions explicitly. But for the purpose of the exam, 
+it is a good way to determine if a given application should be thrown explicitly by the programmer or not.
+------------------------
+You must remember the hierarchy of exception classes:
+
+The base class of all exceptions is java.lang.Throwable. java.lang.Error and java.lang.Exception are the only two subclasses of Throwable.
+
+Error is used by the JVM to throw exception that have nothing to do with the program code as such but occur because of environment. 
+For example, OutOfMemoryError. It indicates serious problems that a reasonable application should not try to catch. 
+Most such errors are abnormal conditions. Error and its subclasses are regarded as unchecked exceptions for the purposes of compile-time checking of exceptions.
+
+Exception is used by the programmer as well as the JVM when it encounters exceptional situation in the program. 
+Exception and its subclasses (except RuntimeException) are called Checked Exceptions. 
+Checked exceptions need to be declared in a method or constructor's throws clause if they can be thrown by the execution of the method 
+or constructor and propagate outside the method or constructor boundary. For example, java.io.IOException.
+
+RuntimeException extends Exception, which is used to report exceptional situations that cannot be predetermined at compile time. For example, 
+IndexOutOfBoundsException or NullPointerException. RuntimeException and its subclasses are unchecked exceptions. 
+Unchecked exceptions do not need to be declared in a method or constructor's throws clause.
+
+
+
+------------------------Working with Inheritance-----------------------
+The overriding method may opt not to declare any throws clause even if the original method has a throws clause.
+No exception (i.e. an empty set of exceptions) is a valid subset of the set of exceptions thrown by the original method 
+so an overriding method can choose to not have any throws clause.
