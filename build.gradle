@@ -1,0 +1,14 @@
+group = "java-certification"
+version = "1.0.0-SNAPSHOT"
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    dependencies {
+
+    }
+}
