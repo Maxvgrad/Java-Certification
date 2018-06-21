@@ -1,13 +1,19 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
 
-group 'com.javacertification'
+group 'com.java-certification'
 version '1.0-SNAPSHOT'
 mainClassName = 'greeter.Greeter'
 
 sourceCompatibility = 10
 repositories {
     mavenCentral()
+}
+
+distTar {
+    from project(':docs').asciidoctor, {
+        into "${project.name}-${version}"
+    }
 }
 
 dependencies {

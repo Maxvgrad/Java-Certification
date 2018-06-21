@@ -1,6 +1,6 @@
 apply plugin: 'groovy'
 
-group 'com'
+group 'com.java-certification'
 version '1.0-SNAPSHOT'
 
 repositories {

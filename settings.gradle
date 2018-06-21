@@ -1,4 +1,5 @@
 rootProject.name = 'Java-Certification'
 include 'greeting-library'
 include 'greeter'
-
+include 'docs'
+include 'lbmanual'

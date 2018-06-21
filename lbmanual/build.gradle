@@ -1,0 +1,17 @@
+apply plugin: 'java'
+apply plugin: 'application'
+group 'com.java-certification'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 10
+mainClassName = 'com.javacertification.logback.Main'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.3.0-alpha4'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

@@ -1,0 +1,12 @@
+apply plugin: 'org.asciidoctor.convert'
+
+group 'com.java-certification'
+version '1.0-SNAPSHOT'
+
+asciidoctor {
+    sources {
+        include 'greeter.adoc'
+    }
+}
+
+build.dependsOn 'asciidoctor'
